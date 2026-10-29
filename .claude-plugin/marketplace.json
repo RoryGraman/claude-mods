@@ -1,0 +1,12 @@
+{
+  "name": "claude-mods",
+  "owner": { "name": "Rory Graman" },
+  "description": "Mods for Claude Code.",
+  "plugins": [
+    {
+      "name": "subagent-watch",
+      "source": "./subagent-watch",
+      "description": "Shows a band above the prompt, a toast and a status entry while subagents run."
+    }
+  ]
+}
