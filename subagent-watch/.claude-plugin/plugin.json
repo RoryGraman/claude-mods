@@ -1,0 +1,6 @@
+{
+  "name": "subagent-watch",
+  "version": "0.1.0",
+  "description": "Shows a band above the prompt, a toast and a status entry while subagents run.",
+  "types": "./types/index.d.ts"
+}
