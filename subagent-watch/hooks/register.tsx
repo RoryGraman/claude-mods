@@ -113,11 +113,13 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // Other mods draw in the same band, so their part stays first.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    const base = await next(e)
     const list = await read($, running)
 
     if (e.props.hasSurvey || list.length === 0) {
-      return next(e)
+      return base
     }
 
     const { Box, Text } = $.ui.resolve(e)
@@ -125,6 +127,7 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
+        {base}
         {list.map(a => (
           <Box key={a.id} flexDirection="column">
             <Text>
