@@ -76,10 +76,10 @@ test('the bar names its parts so each can take its own color', () => {
   expect(barSegments(at(30, 50), 40).map(s => s.kind)).toEqual(['used', 'week', 'rest'])
 })
 
-test('the labels say the usage, the week and the lead', () => {
-  expect(labels(at(52, 44)).summary).toBe('52% used · 44% of week · +8 pts')
-  expect(labels(at(30, 50)).summary).toBe('30% used · 50% of week · -20 pts')
-  expect(labels(at(50, 50)).summary).toBe('50% used · 50% of week · 0 pts')
+test('the labels say the usage and the week, with no point lead', () => {
+  expect(labels(at(52, 44)).summary).toBe('52% used · 44% of week')
+  expect(labels(at(30, 50)).summary).toBe('30% used · 50% of week')
+  expect(labels(at(50, 50)).summary).toBe('50% used · 50% of week')
 })
 
 test('the status line starts with the reset, with no pace word', () => {
@@ -220,7 +220,7 @@ test('the hint keeps the engine line first and adds the bar and the status below
 
   expect((await ui.find({ type: 'Text' }))?.text).toBe('engine hint')
   expect(await ui.find({ type: 'Text', text: /█+▓*━*─*/ })).toBeTruthy()
-  expect(await ui.find({ type: 'Text', text: /52% used · 50% of week · \+2 pts/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /52% used · 50% of week$/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: /^Resets .* · Next 5 hours on pace:/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
   await ui.unmount()
@@ -262,7 +262,7 @@ test('on the desktop the band keeps what other mods draw first and adds the card
 
   expect((await ui.find({ type: 'Text' }))?.text).toBe('other band')
   expect(await ui.find({ type: 'Text', text: /█+/ })).toBeTruthy()
-  expect(await ui.find({ type: 'Text', text: /52% used · 50% of week · \+2 pts/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /52% used · 50% of week$/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: /^Resets .* · Next 5 hours on pace:/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
   await ui.unmount()

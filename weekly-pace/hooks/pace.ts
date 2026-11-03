@@ -104,7 +104,7 @@ const pct = (n: number) => `${Math.round(n * 10) / 10}%`
 
 export function labels(p: Pace) {
   return {
-    summary: `${pct(p.usage)} used · ${pct(p.elapsed)} of week · ${p.delta > 0 ? '+' : ''}${p.delta} pts`,
+    summary: `${pct(p.usage)} used · ${pct(p.elapsed)} of week`,
     reset: `Resets ${clockLabel(p.reset)}, in ${remainingLabel(p.remainingHours)}`,
     per5h: pct(p.per5h),
   }
