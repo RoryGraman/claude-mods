@@ -1,0 +1,6 @@
+{
+  "name": "weekly-pace",
+  "version": "0.3.1",
+  "description": "Shows weekly usage against the week's clock in one colored bar by the prompt.",
+  "types": "./types/index.d.ts"
+}
