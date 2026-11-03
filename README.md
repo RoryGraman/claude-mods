@@ -48,8 +48,8 @@ The band and the status entry go away when no subagent runs.
 The mod shows how fast you use your weekly limit (the 7-day window), compared with how much of the week has gone.
 
 ```
-██████████████████▓▓▓─────────────────── 52% used · 44% of week
-Resets Mon 2 PM, in 3d 22h · Next 5 hours on pace: 2.6%
+██████████████████████████▓▓▓▓▓─────────────────────────────
+Resets Mon 2 PM, in 3d 22h · 52% used · 44% of week
 ```
 
 The bar has four parts:
@@ -66,7 +66,7 @@ The color shows the lead: the percent used minus the percent of the week gone.
 - Orange: more than 10 points.
 - Red: more than 20 points.
 
-The second line gives the reset time and the share of the limit that you can use in the next 5 hours if you spread what is left evenly until the reset.
+The bar fills the width of the row. The second line gives the reset time, the percent used, and the percent of the week that has gone.
 
 In the terminal, the bar is under the prompt. In the desktop app, it is in the band above the prompt. The bar shows only when your plan has a weekly limit. It updates once a minute.
 

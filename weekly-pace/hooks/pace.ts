@@ -7,7 +7,6 @@ export type Pace = {
   elapsed: number
   tone: Tone
   delta: number
-  per5h: number
   remainingHours: number
   reset: Date
 }
@@ -50,14 +49,12 @@ export function computePace(limit: WeeklyLimit | null, nowMs: number): Pace | nu
   const usage = clamp(limit.percentUsed, 0, 100)
   const delta = Math.round(usage - elapsed)
   const remainingHours = clamp((resetMs - nowMs) / HOUR, 0, 168)
-  const per5h = Math.max(100 - usage, 0) / Math.max(remainingHours / 5, 1)
 
   return {
     usage,
     elapsed,
     tone: toneOf(delta),
     delta,
-    per5h,
     remainingHours,
     reset: new Date(resetMs),
   }
@@ -106,7 +103,6 @@ export function labels(p: Pace) {
   return {
     summary: `${pct(p.usage)} used · ${pct(p.elapsed)} of week`,
     reset: `Resets ${clockLabel(p.reset)}, in ${remainingLabel(p.remainingHours)}`,
-    per5h: pct(p.per5h),
   }
 }
 

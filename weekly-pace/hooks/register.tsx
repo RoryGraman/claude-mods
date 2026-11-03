@@ -14,9 +14,9 @@ function weekly(rateLimits: readonly SessionRateLimit[]): WeeklyLimit | null {
   return w && w.resetsAt ? { percentUsed: w.percentUsed, resetsAt: w.resetsAt } : null
 }
 
-// The bar's cells leave room for the summary after it (up to 37 columns).
+// The bar fills the row.
 function bar(pace: Pace, columns: number) {
-  const parts = barSegments(pace, Math.max(20, Math.min(60, columns - 37)))
+  const parts = barSegments(pace, Math.max(20, columns))
   const text = (kind: string) => parts.find(s => s.kind === kind)?.text ?? ''
 
   return { used: text('used'), ahead: text('ahead'), week: text('week'), rest: text('rest') }
@@ -69,11 +69,10 @@ export const register: Register = on => {
           <Text color={color}>{b.used + b.ahead}</Text>
           <Text>{b.week}</Text>
           <Text dimColor>{b.rest}</Text>
-          <Text> {l.summary}</Text>
         </Text>
         <Text wrap="truncate-end">
-          <Text dimColor>{l.reset} · Next 5 hours on pace: </Text>
-          <Text>{l.per5h}</Text>
+          <Text dimColor>{l.reset} · </Text>
+          <Text>{l.summary}</Text>
         </Text>
       </Box>
     )
@@ -98,17 +97,14 @@ export const register: Register = on => {
       <Box flexDirection="column" gap={1}>
         {base}
         <Box flexDirection="column" gap={0}>
-          <Box flexDirection="row" gap={1}>
-            <Box flexDirection="row" gap={0}>
-              <Text mono color={color}>{b.used + b.ahead}</Text>
-              <Text mono>{b.week}</Text>
-              <Text mono dimColor>{b.rest}</Text>
-            </Box>
-            <Text>{l.summary}</Text>
+          <Box flexDirection="row" gap={0}>
+            <Text mono color={color}>{b.used + b.ahead}</Text>
+            <Text mono>{b.week}</Text>
+            <Text mono dimColor>{b.rest}</Text>
           </Box>
           <Box flexDirection="row" gap={1}>
-            <Text dimColor>{l.reset} · Next 5 hours on pace:</Text>
-            <Text>{l.per5h}</Text>
+            <Text dimColor>{l.reset} ·</Text>
+            <Text>{l.summary}</Text>
           </Box>
         </Box>
       </Box>

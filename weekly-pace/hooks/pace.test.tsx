@@ -85,14 +85,7 @@ test('the labels say the usage and the week, with no point lead', () => {
 test('the status line starts with the reset, with no pace word', () => {
   // HALF is Sat 7 PM in Chicago, 84 hours after NOW.
   expect(labels(at(50, 50)).reset).toBe('Resets Sat 7 PM, in 3d 12h')
-  expect(Object.keys(labels(at(81, 57)))).toEqual(['summary', 'reset', 'per5h'])
-})
-
-test('the next five hours share what is left evenly', () => {
-  const pace = computePace({ percentUsed: 50, resetsAt: HALF }, NOW)
-
-  // 50% left over 84 hours is 16.8 windows of five hours.
-  expect(pace?.per5h.toFixed(1)).toBe('3.0')
+  expect(Object.keys(labels(at(81, 57)))).toEqual(['summary', 'reset'])
 })
 
 test('no weekly window means no pace', () => {
@@ -194,8 +187,21 @@ const seeded = (on: Parameters<TestBody>[1], limit: unknown, text: string) => {
   })
 }
 
-// The old status words, but not the "on pace:" of the five-hour budget.
-const NO_WORD = /●|On pace|Under pace|[Ff]ast/
+// The old status words, and the old five-hour budget.
+const NO_WORD = /●|[Oo]n pace|Under pace|[Ff]ast|5 hours/
+
+const STATUS = /^Resets .* · \d+(\.\d)?% used · \d+(\.\d)?% of week$/
+
+// The Text nodes drawn in the monospace face: the bar.
+function monoText(n: unknown, out: string[] = []): string[] {
+  if (n && typeof n === 'object') {
+    const d = n as Drawn
+    if (d.type === 'Text' && d.props?.mono) out.push(textOf(d))
+    for (const c of d.children ?? []) monoText(c, out)
+  }
+
+  return out
+}
 
 // Half the week is gone: behind, level, a bit ahead, ahead, far ahead.
 for (const used of [30, 52, 58, 62, 81]) {
@@ -203,12 +209,13 @@ for (const used of [30, 52, 58, 62, 81]) {
     seeded(on, { percentUsed: used, resetsAt: HALF }, 'engine hint')
     const hint = await $.ui.mount({ ...HINT, surface: 'terminal' })
 
-    expect(textOf(cutRows(await hint.drawn())[1])).toMatch(/^Resets .* · Next 5 hours on pace: \d/)
+    expect(textOf(cutRows(await hint.drawn())[1])).toMatch(STATUS)
     expect(await hint.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
     await hint.unmount()
 
     const band = await $.ui.mount({ ...BAND, surface: 'desktop' })
-    expect(await band.find({ type: 'Text', text: /^Resets .* · Next 5 hours on pace:$/ })).toBeTruthy()
+    expect(await band.find({ type: 'Text', text: /^Resets .* ·$/ })).toBeTruthy()
+    expect(await band.find({ type: 'Text', text: /^\d+(\.\d)?% used · \d+(\.\d)?% of week$/ })).toBeTruthy()
     expect(await band.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
     await band.unmount()
   })
@@ -220,21 +227,31 @@ test('the hint keeps the engine line first and adds the bar and the status below
 
   expect((await ui.find({ type: 'Text' }))?.text).toBe('engine hint')
   expect(await ui.find({ type: 'Text', text: /█+▓*━*─*/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /^Resets .* ·/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: /52% used · 50% of week$/ })).toBeTruthy()
-  expect(await ui.find({ type: 'Text', text: /^Resets .* · Next 5 hours on pace:/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
   await ui.unmount()
 })
 
-test('on the terminal both lines fit the padded hint row and cut at their end', async ($, on) => {
-  // 99.9% used at 44.6% of the week is the longest summary: 37 columns with its space.
+test('on the terminal the bar fills the padded hint row and both lines cut at their end', async ($, on) => {
+  // 99.9% used at 44.6% of the week is the longest status line.
   seeded(on, { percentUsed: 99.9, resetsAt: new Date(NOW + 0.554 * WEEK).toISOString() }, 'engine hint')
   const ui = await $.ui.mount({ ...HINT, surface: 'terminal', viewport: { columns: 80, rows: 24 } })
   const rows = cutRows(await ui.drawn())
 
   expect(rows.map(r => r.props?.wrap)).toEqual(['truncate-end', 'truncate-end'])
   // The engine pads the hint row by two columns on each side.
-  expect(textOf(rows[0]).length).toBeLessThanOrEqual(76)
+  expect(textOf(rows[0]).length).toBe(76)
+  expect(textOf(rows[0])).not.toMatch(/%/)
+  expect(textOf(rows[1]).length).toBeLessThanOrEqual(76)
+  await ui.unmount()
+})
+
+test('on the desktop the bar fills the band', async ($, on) => {
+  seeded(on, { percentUsed: 52, resetsAt: HALF }, 'other band')
+  const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
+
+  expect(monoText(await ui.drawn()).join('').length).toBe(BAND.props.bodyColumns)
   await ui.unmount()
 })
 
@@ -262,8 +279,8 @@ test('on the desktop the band keeps what other mods draw first and adds the card
 
   expect((await ui.find({ type: 'Text' }))?.text).toBe('other band')
   expect(await ui.find({ type: 'Text', text: /█+/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /^Resets .* ·$/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: /52% used · 50% of week$/ })).toBeTruthy()
-  expect(await ui.find({ type: 'Text', text: /^Resets .* · Next 5 hours on pace:/ })).toBeTruthy()
   expect(await ui.find({ type: 'Text', text: NO_WORD })).toBeFalsy()
   await ui.unmount()
 })
